@@ -1,0 +1,19 @@
+{
+  "name": "programmieren-projekt-gruppeb",
+  "version": "1.0.0",
+  "description": "Programmierprojekt in JavaScript. Semester 1",
+  "main": "project.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brendlij/programmieren-projekt-GruppeB.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brendlij/programmieren-projekt-GruppeB/issues"
+  },
+  "homepage": "https://github.com/brendlij/programmieren-projekt-GruppeB#readme"
+}

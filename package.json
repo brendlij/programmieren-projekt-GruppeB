@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/brendlij/programmieren-projekt-GruppeB/issues"
   },
-  "homepage": "https://github.com/brendlij/programmieren-projekt-GruppeB#readme"
+  "homepage": "https://github.com/brendlij/programmieren-projekt-GruppeB#readme",
+  "dependencies": {
+    "prompt-sync": "^4.2.0"
+  }
 }

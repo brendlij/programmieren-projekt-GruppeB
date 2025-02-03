@@ -5,3 +5,5 @@ Ideas:
         Daten: Aufgaben, Fälligkeitsdaten, Status, Verantwortliche
         Anwendung: Übersicht offener Aufgaben, Fortschrittskontrolle
         KI: Automatische Priorisierung und Vorschläge für Zeitmanagement
+
+        test

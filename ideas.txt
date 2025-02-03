@@ -1,0 +1,7 @@
+Ideas:
+
+#1: Projektmanagement für kleine Teams
+
+        Daten: Aufgaben, Fälligkeitsdaten, Status, Verantwortliche
+        Anwendung: Übersicht offener Aufgaben, Fortschrittskontrolle
+        KI: Automatische Priorisierung und Vorschläge für Zeitmanagement

@@ -172,7 +172,16 @@ async function createTask() {
   // Aufgabe anzeigen
   console.log(green, "\nErstellte Aufgabe:");
   console.log(newTask);
+  
+// Export the task to a JSON file
+const taskJson = JSON.stringify(newTask, null, 2);
+const taskFileName = `task_${Date.now()}.json`; // Unique filename based on timestamp
+fs.writeFileSync(taskFileName, taskJson, "utf8");
+console.log(green, `Aufgabe wurde in ${taskFileName} exportiert.`);
 }
 
 // Interaktive Task-Erstellung starten
+
+while(true){
 await createTask();
+}

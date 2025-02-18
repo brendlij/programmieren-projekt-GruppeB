@@ -172,16 +172,36 @@ async function createTask() {
   // Aufgabe anzeigen
   console.log(green, "\nErstellte Aufgabe:");
   console.log(newTask);
+
+  // Export the task to a JSON file
+  const taskJson = JSON.stringify(newTask, null, 2);
+  const taskFileName = `task_${newTask.name.toLowerCase()}_${newTask.responsiblePersons
+    .toString()
+    .toLowerCase()}.json`; // Unique filename based on task name and responsible persons
+  fs.writeFileSync(taskFileName, taskJson, "utf8");
+  console.log(green, `Aufgabe wurde in ${taskFileName} exportiert.`);
+}
+
+
+//Asks User for Name and responsible Person and reads the Task from the JSON file
+async function readTask() {
   
-// Export the task to a JSON file
-const taskJson = JSON.stringify(newTask, null, 2);
-const taskFileName = `task_${Date.now()}.json`; // Unique filename based on timestamp
-fs.writeFileSync(taskFileName, taskJson, "utf8");
-console.log(green, `Aufgabe wurde in ${taskFileName} exportiert.`);
+  const name = prompt("Bitte wähle den Namen der Aufgabe aus: ");
+  const responsiblePersons = prompt("Bitte wähle die Person der Aufgabe aus: ");
+  const fileName = `task_${name.toLowerCase()}_${responsiblePersons.toLowerCase()}.json`;
+
+  try {
+    const data = await fs.readFileSync(fileName, "utf8"); 
+    const jsonData = JSON.parse(data); // Parse JSON string into an object
+    console.log("JSON data:", jsonData);
+  } catch (err) {
+    console.error("Error reading or parsing file:", err);
+  }
 }
 
 // Interaktive Task-Erstellung starten
 
-while(true){
-await createTask();
+while (true) {
+  await createTask();
+  await readTask();
 }

@@ -7,6 +7,9 @@ import Task from "./lib/task.js";
 // prompt-sync initialisieren
 const prompt = promptSync();
 
+// OpenAI initialisieren (API-Key wird z.B. über die .env-Datei geladen)
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
 // Farben für die Konsolenausgabe (ANSI-Escape-Codes)
 const cyan = "\x1b[36m%s\x1b[0m"; // Eingabeaufforderungen
 const yellow = "\x1b[33m%s\x1b[0m"; // Kategorienliste
@@ -24,9 +27,6 @@ if (fs.existsSync(categoriesFile)) {
     console.error(red, "Fehler beim Laden der Kategorien:", err);
   }
 }
-
-// OpenAI initialisieren (API-Key wird z.B. über die .env-Datei geladen)
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
  * Normalisiert ein Datum, das in umgangssprachlichen Begriffen eingegeben wurde,
@@ -60,28 +60,113 @@ async function normalizeDate(dateInput) {
  */
 async function createTask() {
   // 1. Name abfragen
-  console.log(cyan, "Bitte gib den Namen der Aufgabe ein:");
-  const name = prompt(">>> ").trim();
+  const name = consoleLogAndInput(cyan, "Bitte gib den Namen der Aufgabe ein:");
 
   // 2. Beschreibung (direkt nach dem Namen)
-  console.log(cyan, "Bitte gib die Beschreibung der Aufgabe ein:");
-  const description = prompt(">>> ").trim();
+  const description = consoleLogAndInput(
+    cyan,
+    "Bitte gib die Beschreibung der Aufgabe ein:"
+  );
 
   // 3. Deadline abfragen (Eingabe kann umgangssprachlich erfolgen)
-  console.log(
+  const deadlineInput = consoleLogAndInput(
     cyan,
     "Bitte gib das Fälligkeitsdatum ein (z.B. 'morgen', 'nächste Woche Dienstag' oder im Format YYYY-MM-DD):"
   );
-  const deadlineInput = prompt(">>> ").trim();
+
   const normalizedDeadline = await normalizeDate(deadlineInput);
 
   // 4. Status abfragen
-  console.log(
+  const status = consoleLogAndInput(
     cyan,
     "Bitte gib den Status der Aufgabe ein (z.B. offen, in Bearbeitung, abgeschlossen):"
   );
-  const status = prompt(">>> ").trim();
 
+  // // 5. Kategorie-Vorschlag: Kurzer Vorschlag (max. 2 Worte) basierend auf dem Namen
+  const category = await categoriesInput();
+
+  // 6. Verantwortliche Personen abfragen
+  const responsiblePersons = consoleLogAndInput(
+    cyan,
+    "Bitte gib die Namen der verantwortlichen Personen ein (kommasepariert):"
+  )
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s !== "");
+
+  // Neues Task-Objekt erstellen
+  const newTask = new Task(
+    name,
+    description,
+    normalizedDeadline,
+    status,
+    category,
+    responsiblePersons
+  );
+
+  // Aufgabe anzeigen
+  console.log(green, "\nErstellte Aufgabe:");
+  console.log(newTask);
+
+  // Export the task to a JSON file
+  const taskJson = JSON.stringify(newTask, null, 2);
+  const taskFileName = `task_${newTask.name.toLowerCase()}_${newTask.responsiblePersons
+    .toString()
+    .toLowerCase()}.json`; // Unique filename based on task name and responsible persons
+  fs.writeFileSync(taskFileName, taskJson, "utf8");
+  console.log(green, `Aufgabe wurde in ${taskFileName} exportiert.`);
+}
+
+//Asks User for Name and responsible Person and reads the Task from the JSON file
+async function readTask() {
+  const name = consoleLogAndInput(
+    cyan,
+    "Bitte wähle den Namen der Aufgabe aus:"
+  );
+
+  const responsiblePersons = consoleLogAndInput(
+    cyan,
+    "Bitte wähle die Person der Aufgabe aus:"
+  );
+
+  const fileName = `task_${name.toLowerCase()}_${responsiblePersons.toLowerCase()}.json`;
+
+  try {
+    const data = await fs.readFileSync(fileName, "utf8");
+    const jsonData = JSON.parse(data); // Parse JSON string into an object
+    console.log("JSON data:", jsonData);
+  } catch (err) {
+    console.error("Error reading or parsing file:", err);
+  }
+}
+
+// Interaktive Task-Erstellung starten
+
+while (true) {
+  const action = consoleLogAndInput(
+    cyan,
+    "Möchtest du eine Aufgabe erstellen (1) oder eine Aufgabe lesen (2)? drücke 'q' zum Beenden):"
+  );
+
+  if (action === "q") {
+    break;
+  }
+  if (action === "1") {
+    await createTask();
+  } else if (action === "2") {
+    await readTask();
+  } else {
+    console.log(red, "Ungültige Eingabe. Bitte wähle 1 oder 2.");
+  }
+}
+
+function consoleLogAndInput(color, promptText) {
+  console.log(color, promptText);
+  const input = prompt(">>> ").trim();
+  return input;
+}
+
+async function categoriesInput() {
   // 5. Kategorie-Vorschlag: Kurzer Vorschlag (max. 2 Worte) basierend auf dem Namen
   const categoryPrompt = `Gib mir bitte eine kurze, prägnante Kategorie (maximal 2 Worte) basierend auf dem Aufgabennamen "${name}".`;
   let suggestedCategory = "";
@@ -109,11 +194,11 @@ async function createTask() {
   }
 
   console.log(cyan, `Vorgeschlagene Kategorie: ${suggestedCategory}`);
-  console.log(
+
+  const categoryInput = consoleLogAndInput(
     cyan,
     "Bitte wähle eine Kategorie aus (Tippe die Nummer, den Namen oder drücke Enter, um den Vorschlag zu übernehmen):"
   );
-  const categoryInput = prompt(">>> ").trim();
 
   let category = "";
   if (
@@ -147,61 +232,5 @@ async function createTask() {
       console.error(red, "Fehler beim Speichern der Kategorien:", err);
     }
   }
-
-  // 6. Verantwortliche Personen abfragen
-  console.log(
-    cyan,
-    "Bitte gib die Namen der verantwortlichen Personen ein (kommasepariert):"
-  );
-  const responsiblePersonsInput = prompt(">>> ").trim();
-  const responsiblePersons = responsiblePersonsInput
-    .split(",")
-    .map((s) => s.trim())
-    .filter((s) => s !== "");
-
-  // Neues Task-Objekt erstellen
-  const newTask = new Task(
-    name,
-    description,
-    normalizedDeadline,
-    status,
-    category,
-    responsiblePersons
-  );
-
-  // Aufgabe anzeigen
-  console.log(green, "\nErstellte Aufgabe:");
-  console.log(newTask);
-
-  // Export the task to a JSON file
-  const taskJson = JSON.stringify(newTask, null, 2);
-  const taskFileName = `task_${newTask.name.toLowerCase()}_${newTask.responsiblePersons
-    .toString()
-    .toLowerCase()}.json`; // Unique filename based on task name and responsible persons
-  fs.writeFileSync(taskFileName, taskJson, "utf8");
-  console.log(green, `Aufgabe wurde in ${taskFileName} exportiert.`);
-}
-
-
-//Asks User for Name and responsible Person and reads the Task from the JSON file
-async function readTask() {
-  
-  const name = prompt("Bitte wähle den Namen der Aufgabe aus: ");
-  const responsiblePersons = prompt("Bitte wähle die Person der Aufgabe aus: ");
-  const fileName = `task_${name.toLowerCase()}_${responsiblePersons.toLowerCase()}.json`;
-
-  try {
-    const data = await fs.readFileSync(fileName, "utf8"); 
-    const jsonData = JSON.parse(data); // Parse JSON string into an object
-    console.log("JSON data:", jsonData);
-  } catch (err) {
-    console.error("Error reading or parsing file:", err);
-  }
-}
-
-// Interaktive Task-Erstellung starten
-
-while (true) {
-  await createTask();
-  await readTask();
+  return category;
 }

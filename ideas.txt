@@ -5,3 +5,6 @@ Ideas:
         Daten: Aufgaben, Fälligkeitsdaten, Status, Verantwortliche
         Anwendung: Übersicht offener Aufgaben, Fortschrittskontrolle
         KI: Automatische Priorisierung und Vorschläge für Zeitmanagement
+
+
+        Anforderungen: Ein und Auslessen von Tasks gruppirt nach Kategoirien, Erstellen von Tasks, Priority ueber AI, und Password secured mit login und so, fuer mehrere Personen, 

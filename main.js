@@ -28,6 +28,25 @@ if (fs.existsSync(categoriesFile)) {
   }
 }
 
+// Interaktive Task-Erstellung starten
+while (true) {
+  const action = consoleLogAndInput(
+    cyan,
+    "Möchtest du eine Aufgabe erstellen (1) oder eine Aufgabe lesen (2)? drücke 'q' zum Beenden):"
+  );
+
+  if (action === "q") {
+    break;
+  }
+  if (action === "1") {
+    await createTask();
+  } else if (action === "2") {
+    await readTask();
+  } else {
+    console.log(red, "Ungültige Eingabe. Bitte wähle 1 oder 2.");
+  }
+}
+
 /**
  * Erzeugt interaktiv eine Aufgabe.
  */
@@ -110,26 +129,6 @@ async function readTask() {
     console.log("JSON data:", jsonData);
   } catch (err) {
     console.log(red,'Fehler beim Lesen der Datei');
-  }
-}
-
-// Interaktive Task-Erstellung starten
-
-while (true) {
-  const action = consoleLogAndInput(
-    cyan,
-    "Möchtest du eine Aufgabe erstellen (1) oder eine Aufgabe lesen (2)? drücke 'q' zum Beenden):"
-  );
-
-  if (action === "q") {
-    break;
-  }
-  if (action === "1") {
-    await createTask();
-  } else if (action === "2") {
-    await readTask();
-  } else {
-    console.log(red, "Ungültige Eingabe. Bitte wähle 1 oder 2.");
   }
 }
 

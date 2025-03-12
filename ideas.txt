@@ -1,10 +1,21 @@
-Ideas:
 
-#1: Projektmanagement für kleine Teams
+        MUST-HAVE-Anforderungen (Beispiel)
 
-        Daten: Aufgaben, Fälligkeitsdaten, Status, Verantwortliche
-        Anwendung: Übersicht offener Aufgaben, Fortschrittskontrolle
-        KI: Automatische Priorisierung und Vorschläge für Zeitmanagement
+    Das Programm liest zu Beginn aus Dateien oder einer anderen Datenquelle wie z.B. localStorage mit JSON die Themen mit Sammlungen von Tasks ein.
+    Tasks bestehen aus verschiedenen Feldern (Verantwortliche, Deadline, Prio, Kategorien, etc)
+    Es gibt Kategorien — diese stehen für beliebigen Tasks, die jemand einsehen möchte (Beispiele: Code-Review, JavaScript, Algorithmen,  etc.). Kategorien enthalten beliebig viele Tasks.
+    
+    Verwaltungsmodus
+        Tasks können für eine Kategorie erstellt werden.
+        Task eigenschaften koennen bearbeitet werden
+        Kategorien passend zur Task können von einer KI generiert und abgespeichert werden.
+        Kategorien können erstellt werden (kann auch automatisch bei der Erstellung neuer Tasks in noch nicht vorhandenen Kategorien geschehen).
+        Kategoirien/Tasks koennen geloescht werden
+    Anwendungsmodus
 
+        Ansicht welche es erlaubt die einzelnen Felder zu sortieren
+        Das Program zeigt Task Kategorien an und fragt nach was man Tasks angezeigt bekommen moechte
 
-        Anforderungen: Ein und Auslessen von Tasks gruppirt nach Kategoirien, Erstellen von Tasks, Priority ueber AI, und Password secured mit login und so, fuer mehrere Personen, 
+        KI dynamische Priorisierung der Tasks 
+
+        Login funktion welche je nach benutzer verschiedenen Tasks anzeigt

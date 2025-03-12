@@ -29,33 +29,6 @@ if (fs.existsSync(categoriesFile)) {
 }
 
 /**
- * Normalisiert ein Datum, das in umgangssprachlichen Begriffen eingegeben wurde,
- * mithilfe der OpenAI-API in das Format YYYY-MM-DD.
- * @param {string} dateInput - Die Benutzereingabe für das Datum.
- * @returns {string} Das Datum im Format YYYY-MM-DD.
- */
-async function normalizeDate(dateInput) {
-  // Heutiges Datum im Format YYYY-MM-DD ermitteln
-  const today = new Date().toISOString().slice(0, 10); // z.B. "2025-02-12"
-
-  // Den Prompt so formulieren, dass er den heutigen Tag als Referenz nennt
-  const promptText = `Angenommen, heute ist ${today}. Konvertiere folgende Datumsangabe in das Format YYYY-MM-DD: "${dateInput}". Gib ausschließlich das Datum im Format YYYY-MM-DD zurück.`;
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "system", content: promptText }],
-    });
-    const normalizedDate = completion.choices[0].message.content.trim();
-    return normalizedDate;
-  } catch (err) {
-    console.error("Fehler bei der Datumskonvertierung:", err);
-    // Fallback: Rückgabe der Originaleingabe
-    return dateInput;
-  }
-}
-
-/**
  * Erzeugt interaktiv eine Aufgabe.
  */
 async function createTask() {
@@ -136,7 +109,7 @@ async function readTask() {
     const jsonData = JSON.parse(data); // Parse JSON string into an object
     console.log("JSON data:", jsonData);
   } catch (err) {
-    console.error("Error reading or parsing file:", err);
+    console.log(red,'Fehler beim Lesen der Datei');
   }
 }
 
@@ -233,4 +206,31 @@ async function categoriesInput() {
     }
   }
   return category;
+}
+
+/**
+ * Normalisiert ein Datum, das in umgangssprachlichen Begriffen eingegeben wurde,
+ * mithilfe der OpenAI-API in das Format YYYY-MM-DD.
+ * @param {string} dateInput - Die Benutzereingabe für das Datum.
+ * @returns {string} Das Datum im Format YYYY-MM-DD.
+ */
+async function normalizeDate(dateInput) {
+  // Heutiges Datum im Format YYYY-MM-DD ermitteln
+  const today = new Date().toISOString().slice(0, 10); // z.B. "2025-02-12"
+
+  // Den Prompt so formulieren, dass er den heutigen Tag als Referenz nennt
+  const promptText = `Angenommen, heute ist ${today}. Konvertiere folgende Datumsangabe in das Format YYYY-MM-DD: "${dateInput}". Gib ausschließlich das Datum im Format YYYY-MM-DD zurück.`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "system", content: promptText }],
+    });
+    const normalizedDate = completion.choices[0].message.content.trim();
+    return normalizedDate;
+  } catch (err) {
+    console.error("Fehler bei der Datumskonvertierung:", err);
+    // Fallback: Rückgabe der Originaleingabe
+    return dateInput;
+  }
 }

@@ -30,7 +30,7 @@ const listTasks = async (currentUser, showAll = false) => {
       message: chalk.cyan("🔍 Would you like to sort or filter your tasks?"),
       choices: [
         "✅ Show All",
-        "⏱️ Sort by Deadline",
+        "⏱️  Sort by Deadline",
         "🔥 Sort by Priority",
         "📂 Filter by Category",
         "🔙 Back to Menu",
@@ -42,7 +42,7 @@ const listTasks = async (currentUser, showAll = false) => {
     return;
   }
 
-  if (filterChoice === "⏱️ Sort by Deadline") {
+  if (filterChoice === "⏱️  Sort by Deadline") {
     tasks.sort((a, b) => dayjs(a.deadline).diff(dayjs(b.deadline)));
     console.log(chalk.green("✓ Tasks sorted by deadline (earliest first)"));
   } else if (filterChoice === "🔥 Sort by Priority") {

@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1743259009997,
+    "title": "Complete Coding Task",
+    "description": "Complete the coding task",
+    "assignedTo": "admin1",
+    "deadline": "2025-03-30 23:59",
+    "priority": "medium",
+    "categories": [
+      "Code"
+    ]
+  },
+  {
+    "id": 1743259029806,
+    "title": "Task Placeholder",
+    "description": "Task Placeholder",
+    "assignedTo": "july2",
+    "deadline": "2025-04-12 12:00",
+    "priority": "medium",
+    "categories": [
+      "Code"
+    ]
+  },
+  {
+    "id": 1743259409840,
+    "title": "Untitled Task",
+    "description": "No description provided.",
+    "assignedTo": "admin1",
+    "deadline": "2025-03-30 12:00",
+    "priority": "medium",
+    "categories": [
+      "Code"
+    ]
+  },
+  {
+    "id": 1743259531598,
+    "title": "Task Details Unknown",
+    "description": "No further information provided.",
+    "assignedTo": "july",
+    "deadline": "2025-03-30 09:00",
+    "priority": "medium",
+    "categories": [
+      "Code"
+    ]
+  }
+]

@@ -2,7 +2,11 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { loadData, saveData, loadTasks } from "../../../utils/storage.js";
-import { printSeparator, printAdminHeader } from "../../helpers.js";
+import {
+  printSeparator,
+  printAdminHeader,
+  validateNotEmpty,
+} from "../../helpers.js";
 
 const listCategories = async () => {
   const data = await loadData();
@@ -16,11 +20,23 @@ const listCategories = async () => {
 const addCategory = async () => {
   const data = await loadData();
   const { newCategory } = await inquirer.prompt([
-    { name: "newCategory", message: "Enter new category name:" },
+    {
+      name: "newCategory",
+      message: "Enter new category name:",
+      validate: (input) => {
+        if (!input || input.trim() === "") {
+          return "Category name cannot be empty";
+        }
+        if (data.categories.includes(input)) {
+          return "Category already exists";
+        }
+        return true;
+      },
+    },
   ]);
   data.categories.push(newCategory);
   await saveData(data);
-  console.log(chalk.green("Category added successfully!"));
+  console.log(chalk.green("✅ Category added successfully!"));
 };
 
 const editCategory = async () => {
@@ -38,13 +54,22 @@ const editCategory = async () => {
       name: "newCategoryName",
       message: `Enter new name for category "${category}":`,
       default: category,
+      validate: (input) => {
+        if (!input || input.trim() === "") {
+          return "Category name cannot be empty";
+        }
+        if (input !== category && data.categories.includes(input)) {
+          return "Category already exists";
+        }
+        return true;
+      },
     },
   ]);
   data.categories = data.categories.map((cat) =>
     cat === category ? newCategoryName : cat
   );
   await saveData(data);
-  console.log(chalk.green("Category updated successfully!"));
+  console.log(chalk.green("✅ Category updated successfully!"));
 };
 
 const deleteCategory = async () => {
@@ -67,7 +92,7 @@ const deleteCategory = async () => {
   if (confirm) {
     data.categories = data.categories.filter((cat) => cat !== category);
     await saveData(data);
-    console.log(chalk.green("Category deleted successfully!"));
+    console.log(chalk.green("✅ Category deleted successfully!"));
   }
 };
 

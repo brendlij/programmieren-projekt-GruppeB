@@ -10,7 +10,14 @@ import {
 import { classifyTaskAI } from "../../utils/ai.js";
 import Task from "../../models/task.js";
 import dayjs from "dayjs";
-import { printSeparator } from "../helpers.js";
+import {
+  printSeparator,
+  validateNotEmpty,
+  validateDate,
+  validateUsername,
+  validatePassword,
+  validateEmail,
+} from "../helpers.js";
 import { loadUsers, saveUsers } from "../../utils/auth.js";
 
 const addTask = async (currentUser) => {
@@ -22,9 +29,32 @@ const addTask = async (currentUser) => {
   console.log(chalk.bold.green("✨ Add a New Task"));
   printSeparator();
 
+  // First step - allow backing out before starting task creation
+  const { confirmCreate } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "confirmCreate",
+      message: chalk.cyan("Do you want to create a new task?"),
+      choices: ["✅ Yes, create task", "🔙 Back to menu"],
+    },
+  ]);
+
+  if (confirmCreate === "🔙 Back to menu") {
+    return;
+  }
+
+  // Now proceed with task creation
   const taskInput = await inquirer.prompt([
-    { name: "title", message: chalk.cyan("📝 Task Title:") },
-    { name: "description", message: chalk.cyan("📄 Task Description:") },
+    {
+      name: "title",
+      message: chalk.cyan("📝 Task Title:"),
+      validate: validateNotEmpty,
+    },
+    {
+      name: "description",
+      message: chalk.cyan("📄 Task Description:"),
+      validate: validateNotEmpty,
+    },
   ]);
 
   // Use registered users for assignment
@@ -48,15 +78,32 @@ const addTask = async (currentUser) => {
   let finalAssignedTo = "";
   if (assignedTo === "➕ Add New Person") {
     const newUser = await inquirer.prompt([
-      { name: "username", message: chalk.cyan("👤 Enter new username:") },
+      {
+        name: "username",
+        message: chalk.cyan("👤 Enter new username:"),
+        validate: validateUsername,
+      },
       {
         name: "password",
         message: chalk.cyan("Enter password:"),
         type: "password",
+        validate: validatePassword,
       },
-      { name: "name", message: chalk.cyan("Enter full name:") },
-      { name: "birthday", message: chalk.cyan("Enter birthday (YYYY-MM-DD):") },
-      { name: "email", message: chalk.cyan("Enter email address:") },
+      {
+        name: "name",
+        message: chalk.cyan("Enter full name:"),
+        validate: validateNotEmpty,
+      },
+      {
+        name: "birthday",
+        message: chalk.cyan("Enter birthday (YYYY-MM-DD):"),
+        validate: validateDate,
+      },
+      {
+        name: "email",
+        message: chalk.cyan("Enter email address:"),
+        validate: validateEmail,
+      },
       {
         type: "list",
         name: "role",
@@ -93,6 +140,7 @@ const addTask = async (currentUser) => {
       {
         name: "newCategory",
         message: chalk.cyan("📂 Enter new category name:"),
+        validate: validateNotEmpty,
       },
     ]);
     finalCategory = newCategory;
@@ -109,6 +157,7 @@ const addTask = async (currentUser) => {
       message: chalk.cyan(
         "⏳ Deadline (e.g., 'tomorrow 15:30', 'next Monday 10:00'):"
       ),
+      validate: validateNotEmpty,
     },
   ]);
 

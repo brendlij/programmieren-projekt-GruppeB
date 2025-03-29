@@ -15,35 +15,44 @@ const listTasks = async (currentUser, showAll = false) => {
     tasks = tasks.filter((task) => task.assignedTo === currentUser.username);
   }
 
+  printSeparator();
+  console.log(
+    chalk.bold.blue("📋 Task List") +
+      (showAll ? chalk.yellow(" (All Users)") : "")
+  );
+  printSeparator();
+
   // --- Filtering and Sorting Section ---
   const { filterChoice } = await inquirer.prompt([
     {
       type: "list",
       name: "filterChoice",
-      message: chalk.cyan("Would you like to sort or filter your tasks?"),
+      message: chalk.cyan("🔍 Would you like to sort or filter your tasks?"),
       choices: [
-        "None",
-        "Sort by Deadline",
-        "Sort by Priority",
-        "Filter by Category",
-        "🔙 Back",
+        "✅ Show All",
+        "⏱️ Sort by Deadline",
+        "🔥 Sort by Priority",
+        "📂 Filter by Category",
+        "🔙 Back to Menu",
       ],
     },
   ]);
 
-  if (filterChoice === "🔙 Back") {
+  if (filterChoice === "🔙 Back to Menu") {
     return;
   }
 
-  if (filterChoice === "Sort by Deadline") {
+  if (filterChoice === "⏱️ Sort by Deadline") {
     tasks.sort((a, b) => dayjs(a.deadline).diff(dayjs(b.deadline)));
-  } else if (filterChoice === "Sort by Priority") {
+    console.log(chalk.green("✓ Tasks sorted by deadline (earliest first)"));
+  } else if (filterChoice === "🔥 Sort by Priority") {
     const priorityOrder = { high: 1, medium: 2, low: 3 };
     tasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
-  } else if (filterChoice === "Filter by Category") {
+    console.log(chalk.green("✓ Tasks sorted by priority (highest first)"));
+  } else if (filterChoice === "📂 Filter by Category") {
     const categories = [...new Set(tasks.flatMap((task) => task.categories))];
     if (categories.length === 0) {
-      console.log(chalk.yellow("No categories available to filter by."));
+      console.log(chalk.yellow("⚠️ No categories available to filter by."));
       await inquirer.prompt([
         { name: "continue", message: "Press ENTER to continue", type: "input" },
       ]);
@@ -57,22 +66,43 @@ const listTasks = async (currentUser, showAll = false) => {
         },
       ]);
       if (chosenCategory === "🔙 Back") {
-        return;
+        return await listTasks(currentUser, showAll); // Return to the start of list tasks
       }
       tasks = tasks.filter((task) => task.categories.includes(chosenCategory));
+      console.log(
+        chalk.green(
+          `✓ Showing tasks in category: ${chalk.bold(chosenCategory)}`
+        )
+      );
     }
   }
   // --- End of Filtering and Sorting Section ---
 
   if (tasks.length === 0) {
-    console.log(chalk.yellow("\n🚨 No tasks available."));
-  } else {
     printSeparator();
-    console.log(chalk.bold.blue("📋 Task List"));
+    console.log(chalk.yellow("\n🚨 No tasks available with current filters."));
+    printSeparator();
+  } else {
     printSeparator();
 
     const now = dayjs();
     const users = await loadUsers();
+
+    // Task count summary
+    const overdueCount = tasks.filter(
+      (task) => dayjs(task.deadline).diff(now) < 0
+    ).length;
+    const urgentCount = tasks.filter((task) => {
+      const daysLeft = dayjs(task.deadline).diff(now, "day");
+      return daysLeft >= 0 && daysLeft < 3;
+    }).length;
+
+    console.log(
+      chalk.bold(`📊 Summary: ${chalk.white(tasks.length)} total tasks, `) +
+        chalk.red.bold(`${overdueCount} overdue, `) +
+        chalk.yellow.bold(`${urgentCount} urgent`)
+    );
+    printSeparator();
 
     tasks.forEach((task, index) => {
       const deadline = dayjs(task.deadline);
@@ -97,15 +127,21 @@ const listTasks = async (currentUser, showAll = false) => {
         : task.assignedTo;
 
       console.log(
-        `${chalk.cyan(`#${index + 1}`)} ${chalk.white.bold(
-          task.title
-        )}  ${chalk.gray("- " + assignedInfo)}\n` +
-          `   📂 ${chalk.magenta(task.categories[0])} | 🔥 ${chalk.yellow(
-            task.priority.toUpperCase()
-          )} | ` +
+        chalk.bgBlue.white(` ${index + 1} `) +
+          " " +
+          chalk.white.bold(task.title) +
+          chalk.gray(" - " + assignedInfo) +
+          "\n" +
+          `   📂 ${chalk.magenta(task.categories[0])} | 🔥 ${
+            task.priority === "high"
+              ? chalk.red.bold("HIGH")
+              : task.priority === "medium"
+              ? chalk.yellow.bold("MEDIUM")
+              : chalk.green.bold("LOW")
+          } | ` +
           `⏳ ${deadlineColor(
             deadline.format("YYYY-MM-DD HH:mm")
-          )} (${urgencyLabel})\n`
+          )} ${urgencyLabel}\n`
       );
     });
 

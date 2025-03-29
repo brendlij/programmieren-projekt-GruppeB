@@ -2,7 +2,15 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { loadUsers, saveUsers } from "../../../utils/auth.js";
-import { printSeparator, printAdminHeader } from "../../helpers.js";
+import {
+  printSeparator,
+  printAdminHeader,
+  validateNotEmpty,
+  validateUsername,
+  validatePassword,
+  validateEmail,
+  validateDate,
+} from "../../helpers.js";
 
 const loadUserList = async () => {
   try {
@@ -41,13 +49,37 @@ const addUser = async () => {
   if (confirmAdd === "🔙 Back") {
     return;
   }
+
   const users = await loadUserList();
+
+  // Add validation to all fields
   const answers = await inquirer.prompt([
-    { name: "username", message: "Enter username:" },
-    { name: "password", message: "Enter password:", type: "password" },
-    { name: "name", message: "Enter full name:" },
-    { name: "birthday", message: "Enter birthday (YYYY-MM-DD):" },
-    { name: "email", message: "Enter email address:" },
+    {
+      name: "username",
+      message: "Enter username:",
+      validate: validateUsername,
+    },
+    {
+      name: "password",
+      message: "Enter password:",
+      type: "password",
+      validate: validatePassword,
+    },
+    {
+      name: "name",
+      message: "Enter full name:",
+      validate: validateNotEmpty,
+    },
+    {
+      name: "birthday",
+      message: "Enter birthday (YYYY-MM-DD):",
+      validate: validateDate,
+    },
+    {
+      name: "email",
+      message: "Enter email address:",
+      validate: validateEmail,
+    },
     {
       type: "list",
       name: "role",
@@ -55,15 +87,27 @@ const addUser = async () => {
       choices: ["admin", "user"],
     },
   ]);
+
+  // Check for duplicate usernames
+  if (users.some((user) => user.username === answers.username)) {
+    console.log(
+      chalk.red(
+        `Username "${answers.username}" already exists. Please choose another username.`
+      )
+    );
+    return await addUser();
+  }
+
   users.push(answers);
   await saveUsers(users);
-  console.log(chalk.green("User added successfully!"));
+  console.log(chalk.green("✅ User added successfully!"));
 };
 
 const editUser = async () => {
   let users = await loadUserList();
   const choices = users.map((user, index) => `${index + 1}. ${user.username}`);
   choices.push("🔙 Back");
+
   const { userIndex } = await inquirer.prompt([
     {
       type: "list",
@@ -72,37 +116,47 @@ const editUser = async () => {
       choices,
     },
   ]);
+
   if (userIndex === "🔙 Back") {
     return;
   }
+
   const index = parseInt(userIndex.split(".")[0]) - 1;
   const user = users[index];
+  const originalUsername = user.username;
+
+  // Add validation to all input fields
   const answers = await inquirer.prompt([
     {
       name: "username",
       message: `Enter new username (current: ${user.username}):`,
       default: user.username,
+      validate: validateUsername,
     },
     {
       name: "password",
       message: "Enter new password:",
       type: "password",
       default: user.password,
+      validate: validatePassword,
     },
     {
       name: "name",
       message: `Enter full name (current: ${user.name}):`,
       default: user.name,
+      validate: validateNotEmpty,
     },
     {
       name: "birthday",
       message: `Enter birthday (current: ${user.birthday}):`,
       default: user.birthday,
+      validate: validateDate,
     },
     {
       name: "email",
       message: `Enter email (current: ${user.email}):`,
       default: user.email,
+      validate: validateEmail,
     },
     {
       type: "list",
@@ -112,9 +166,23 @@ const editUser = async () => {
       default: user.role,
     },
   ]);
+
+  // Check for duplicate username only if username was changed
+  if (
+    answers.username !== originalUsername &&
+    users.some((u) => u.username === answers.username)
+  ) {
+    console.log(
+      chalk.red(
+        `Username "${answers.username}" already exists. Please choose another username.`
+      )
+    );
+    return await editUser();
+  }
+
   users[index] = answers;
   await saveUsers(users);
-  console.log(chalk.green("User updated successfully!"));
+  console.log(chalk.green("✅ User updated successfully!"));
 };
 
 const deleteUser = async (currentUser) => {
@@ -140,13 +208,13 @@ const deleteUser = async (currentUser) => {
   // Extract the index from the selection string.
   const index = parseInt(userIndex.split(".")[0]) - 1;
   if (index < 0 || index >= users.length) {
-    console.log(chalk.red("Invalid selection."));
+    console.log(chalk.red("❌ Invalid selection."));
     return;
   }
 
   // Prevent deletion if the selected user is the current admin.
   if (users[index].username === currentUser.username) {
-    console.log(chalk.red("You cannot delete your own account."));
+    console.log(chalk.red("❌ You cannot delete your own account."));
     return;
   }
 
@@ -157,10 +225,11 @@ const deleteUser = async (currentUser) => {
       message: `Are you sure you want to delete ${users[index].username}?`,
     },
   ]);
+
   if (confirm) {
     users.splice(index, 1);
     await saveUsers(users);
-    console.log(chalk.green("User deleted successfully!"));
+    console.log(chalk.green("✅ User deleted successfully!"));
   }
 };
 

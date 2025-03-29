@@ -21,12 +21,12 @@ const mainMenu = async () => {
     const choices = [
       "➕ Add Task",
       "📋 List Tasks",
-      "✏️ Edit Task",
-      "🗑️ Delete Task",
+      "✏️  Edit Task",
+      "🗑️  Delete Task",
     ];
 
     if (currentUser.role === "admin") {
-      choices.push("🛠️ Admin Panel");
+      choices.push("🛠️  Admin Panel");
     }
     choices.push("❌ Exit");
 
@@ -41,9 +41,9 @@ const mainMenu = async () => {
 
     if (action === "➕ Add Task") await addTask(currentUser);
     else if (action === "📋 List Tasks") await listTasks(currentUser);
-    else if (action === "✏️ Edit Task") await editTask(currentUser);
-    else if (action === "🗑️ Delete Task") await deleteTask(currentUser);
-    else if (action === "🛠️ Admin Panel" && currentUser.role === "admin") {
+    else if (action === "✏️  Edit Task") await editTask(currentUser);
+    else if (action === "🗑️  Delete Task") await deleteTask(currentUser);
+    else if (action === "🛠️  Admin Panel" && currentUser.role === "admin") {
       await adminMenu();
     } else if (action === "❌ Exit") {
       break;

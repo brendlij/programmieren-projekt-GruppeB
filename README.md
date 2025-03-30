@@ -7,6 +7,11 @@ Ein einfacher, benutzerfreundlicher Task-Manager für die Konsole – mit Benutz
 1. **Projekt entpacken**  
    Stelle sicher, dass die `.env`-Datei im **Hauptverzeichnis** liegt.
 
+   Inhalt der `.env`-Datei:
+   ```env
+   OPENAI_API_KEY=dein_api_schlüssel
+   ```
+
 2. **Abhängigkeiten installieren**  
    Öffne die Konsole im Hauptverzeichnis und führe aus:
    ```bash

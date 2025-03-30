@@ -1,49 +1,86 @@
-Vor der Nutzung der Anwendung
+# 🧠 Task Manager CLI
 
-Nach dem Entzippen der Datei muss sichergestellt werden, dass die .env Datei im Hauptverzeichnis liegt. 
-Als nächsten Schritt gibt man in der Konsole im Hauptverzeichnis 'npm install' ein.
-Um die Anwendung zu starten, gibt man nun in der Konsole 'npm start' ein.
-Sobald die Anwendung gestartet ist, wird der Benutzer gebeten, einen neuen User zu erstellen, falls noch keiner vorhanden ist. 
-Hierzu muss man einen Benutzernamen, ein Passwort, den vollen Namen, die E-Mail Adresse und das Geburtsdatum im Format YYYY-MM-DD eingeben. 
-Wenn man das erste Mal einen User erstellt, erhält dieser automatisch Admin-Rechte.
+Ein einfacher, benutzerfreundlicher Task-Manager für die Konsole – mit Benutzerverwaltung, Aufgabenorganisation und Adminfunktionen.
 
-Benutzung Task Manager 
+## 🚀 Installation und Start
 
-Navigation der Menüs per Pfeiltasten ⬆️⬇️
+1. **Projekt entpacken**  
+   Stelle sicher, dass die `.env`-Datei im **Hauptverzeichnis** liegt.
 
-Sämtliche Menüs können über den Menüpunkt ⬅️ Back to menu wieder verlassen werden, um ins Hauptmenü zurückzukommen.
+2. **Abhängigkeiten installieren**  
+   Öffne die Konsole im Hauptverzeichnis und führe aus:
+   ```bash
+   npm install
+   ```
 
-1. Neuen Task erstellen
+3. **Anwendung starten**
+   ```bash
+   npm start
+   ```
 
-Zu ➕ Add Task navigieren und mit Enter bestätigen
-Unter ✅ Yes, create task mit Enter bestätigen
-Unter 📝 Task Title einen Namen für den Task eingeben, z.B. Projekt1
-Unter 📄 Task Description eine Beschreibung für den Task eingeben, z.B. Code schreiben für Projekt
-Unter 👤 Assign to einen Benutzer für den Task hinzufügen, z.B. Benutzer1 
-Unter 📂 Select Category eine Kategorie für den Task auswählen, z.B. Work oder eine neue Kategorie erstellen
-Unter ⏳ Deadline kann ein Zeitfenster für die Bearbeitung des Tasks hinzugefügt werden, z.B. morgen oder 30.03.2024 12:00pm 
+4. **Ersten Benutzer erstellen**  
+   Beim ersten Start wirst du aufgefordert, einen neuen Benutzer anzulegen:  
+   - 👤 Benutzername  
+   - 🔒 Passwort  
+   - 🧾 Vollständiger Name  
+   - 📧 E-Mail-Adresse  
+   - 🎂 Geburtsdatum im Format `YYYY-MM-DD`  
 
-2. List Tasks
+   > Der erste erstellte Benutzer erhält automatisch **Admin-Rechte**.
 
-Unter dem Menüpunkt 📋 List Tasks werden alle Tasks aufgelistet und es besteht die Möglichkeit, sie nach verschiedenen Eigenschaften zu sortieren.
-Beispiel: Sort by Deadline: Alle vorhandenen Tasks werden abhängig von Ihrer Deadline ( von kurz vor Deadline nach viel Zeit vor Deadline ) sortiert. 
+## 🧭 Bedienung
 
-3. Edit Tasks 
+Die Navigation erfolgt über die **Pfeiltasten** `⬆️` `⬇️`.  
+Alle Menüs können mit `⬅️ Back to menu` verlassen werden, um ins Hauptmenü zurückzukehren.
 
-Unter ✏️ Edit Task können bereits bestehende Tasks geändert werden. (Funktioniert wie das Erstellen eines Tasks)
+## ✨ Funktionen
 
+### 1. ➕ Neuen Task erstellen
 
-4. Delete Tasks
+1. Menüpunkt `➕ Add Task` auswählen und `Enter` drücken  
+2. Bestätigen mit `✅ Yes, create task`  
+3. Details eingeben:  
+   - 📝 **Task Title**: z. B. `Projekt1`  
+   - 📄 **Task Description**: z. B. `Code schreiben für Projekt`  
+   - 👤 **Assign to**: Benutzername, z. B. `Benutzer1`  
+   - 📂 **Select Category**: Vorhandene oder neue Kategorie wählen  
+   - ⏳ **Deadline**: z. B. `morgen` oder `30.03.2024 12:00pm`
 
-Unter dem Menüpunkt🗑️ Delete Task können bereits bestehende Tasks gelöscht werden. 
-Dazu muss ein bestehender Task ausgewählt werden und dann im Menü ⚠️ Are you sure you want to delete "exampletask"? (y/N) mit der Eingabe 'y' bestätigt werden. Soll der Task nicht gelöscht werden, kann man den Vorgang mit der Eingabe 'n' abbrechen.
+### 2. 📋 Tasks anzeigen
 
-5. Admin Panel
+Unter `📋 List Tasks` werden alle Aufgaben aufgelistet.  
+Sortierung nach Eigenschaften wie z. B. **Deadline** ist möglich.  
+🗂 Beispiel: `Sort by Deadline` → Zeigt Tasks von "kurz vor Deadline" bis "viel Zeit verbleibend" an.
 
-Im 🛠️ Admin Panel können Kategorien angezeigt, erstellt, geändert oder gelöscht werden.
-Außerdem können alle Tasks einer Kategorie angezeigt werden.
-Des Weiteren können alle Tasks und alle Tasks die einem bestimmten User zugeordnet sind angezeigt werden. 
+### 3. ✏️ Tasks bearbeiten
 
-6. Exit 
-Unter ❌ Exit kann das Programm geschlossen werden. Erstellte Benutzer und Passwörter werden gespeichert und können für 
-zukünftige Log-ins verwendet werden. 
+Unter `✏️ Edit Task` können bestehende Tasks geändert werden.  
+Funktioniert identisch wie das Erstellen eines Tasks.
+
+### 4. 🗑️ Tasks löschen
+
+1. Menüpunkt `🗑️ Delete Task` wählen  
+2. Task auswählen  
+3. Im Bestätigungsdialog:  
+   ```
+   ⚠️ Are you sure you want to delete "exampletask"? (y/N)
+   ```
+   - Mit `y` löschen  
+   - Mit `n` abbrechen
+
+### 5. 🛠️ Admin Panel
+
+Im Admin Panel können Admins:  
+- Kategorien **anzeigen**, **erstellen**, **bearbeiten** oder **löschen**  
+- Alle Tasks einer bestimmten Kategorie anzeigen  
+- Alle Tasks aller Benutzer anzeigen  
+- Tasks eines bestimmten Benutzers filtern
+
+### 6. ❌ Anwendung beenden
+
+Mit `❌ Exit` wird das Programm geschlossen.  
+Benutzer und Passwörter bleiben für zukünftige Logins **gespeichert**.
+
+## 📝 Hinweis
+
+Dieses CLI-Tool ist ideal für kleine Teams oder Einzelpersonen, die Aufgaben effizient organisieren möchten – komplett lokal und ohne externe Abhängigkeiten.

@@ -315,12 +315,74 @@ const editTask = async (currentUser) => {
       deadline
     );
 
+    // Priority selection with both current and AI suggestion
+    printSeparator();
+    console.log(chalk.bold.white("🔥 PRIORITY SETTING"));
+    printSeparator();
+
+    // Show current and AI-suggested priority with color coding
+    const currentPriorityDisplay =
+      task.priority === "high"
+        ? chalk.bold.red("HIGH")
+        : task.priority === "medium"
+        ? chalk.yellow("MEDIUM")
+        : chalk.green("LOW");
+
+    const aiPriorityDisplay =
+      aiResult.priority === "high"
+        ? chalk.bold.red("HIGH")
+        : aiResult.priority === "medium"
+        ? chalk.yellow("MEDIUM")
+        : chalk.green("LOW");
+
+    console.log(chalk.cyan(`Current priority: ${currentPriorityDisplay}`));
+    console.log(chalk.cyan(`AI suggested priority: ${aiPriorityDisplay}`));
+
+    const { priority } = await inquirer.prompt([
+      {
+        type: "list",
+        name: "priority",
+        message: chalk.cyan("🔥 Select task priority:"),
+        choices: [
+          {
+            name: `${chalk.bold.red(
+              "HIGH"
+            )} - Urgent, requires immediate attention`,
+            value: "high",
+            short: "High",
+          },
+          {
+            name: `${chalk.yellow("MEDIUM")} - Important, but can wait a bit`,
+            value: "medium",
+            short: "Medium",
+          },
+          {
+            name: `${chalk.green("LOW")} - Not time-sensitive`,
+            value: "low",
+            short: "Low",
+          },
+          {
+            name: `🤖 Use AI suggestion (${aiPriorityDisplay})`,
+            value: aiResult.priority,
+            short: "AI suggestion",
+          },
+          {
+            name: `📌 Keep current (${currentPriorityDisplay})`,
+            value: task.priority,
+            short: "Keep current",
+          },
+        ],
+        default: task.priority,
+      },
+    ]);
+
+    // Create the updated task using the selected priority
     tasks[index] = new Task(
       aiResult.correctedTitle,
       aiResult.correctedDescription,
       finalAssignedTo,
       aiResult.deadline,
-      aiResult.priority,
+      priority, // Use the manually selected priority
       [finalCategory]
     );
 

@@ -19,6 +19,7 @@ export const classifyTaskAI = async (title, description, deadline) => {
           role: "developer",
           content:
             `You are an AI assistant for a task manager. You will:\n` +
+            `- **Suggest a suitable category for the task** based on title and description\n` +
             `- Categorize tasks\n` +
             `- Set priority\n` +
             `- Convert deadlines to **the correct format: YYYY-MM-DD HH:mm**\n` +
@@ -31,7 +32,8 @@ export const classifyTaskAI = async (title, description, deadline) => {
             `"correctedDescription": "Fixed description",\n` +
             `"category": "Suggested category",\n` +
             `"priority": "low | medium | high",\n` +
-            `"deadline": "YYYY-MM-DD HH:mm"\n` +
+            `"deadline": "YYYY-MM-DD HH:mm",\n` +
+            `"analysis": "Brief explanation of category and priority choice"\n` +
             `}`,
         },
         { role: "user", content: input },
@@ -56,13 +58,14 @@ export const classifyTaskAI = async (title, description, deadline) => {
     return {
       correctedTitle: title,
       correctedDescription: description,
-      category: "unknown",
+      category: "General", // Default category suggestion
       priority: "low",
       deadline: dayjs()
         .add(1, "day")
         .hour(12)
         .minute(0)
         .format("YYYY-MM-DD HH:mm"),
+      analysis: "Could not analyze task.",
     };
   }
 };

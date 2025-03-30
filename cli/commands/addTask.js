@@ -120,36 +120,6 @@ const addTask = async (currentUser) => {
     finalAssignedTo = assignedTo.split(" ")[0];
   }
 
-  // Select or create a category
-  const { category } = await inquirer.prompt([
-    {
-      type: "list",
-      name: "category",
-      message: chalk.cyan("📂 Select Category:"),
-      choices: [...data.categories, "➕ Add New Category", "🔙 Back"],
-    },
-  ]);
-
-  if (category === "🔙 Back") {
-    return;
-  }
-
-  let finalCategory = category;
-  if (category === "➕ Add New Category") {
-    const { newCategory } = await inquirer.prompt([
-      {
-        name: "newCategory",
-        message: chalk.cyan("📂 Enter new category name:"),
-        validate: validateNotEmpty,
-      },
-    ]);
-    finalCategory = newCategory;
-    data.categories.push(newCategory);
-  }
-
-  // Save updated categories & people
-  await saveData(data);
-
   // Deadline input
   const { deadline } = await inquirer.prompt([
     {
@@ -163,45 +133,175 @@ const addTask = async (currentUser) => {
 
   console.log(chalk.blue("\n🤖 AI analyzing task & correcting spelling..."));
 
+  let aiResult;
   try {
-    const aiResult = await classifyTaskAI(
+    aiResult = await classifyTaskAI(
       taskInput.title,
       taskInput.description,
       deadline
     );
+  } catch (error) {
+    console.log(chalk.red("❌ Error analyzing task:", error));
+    aiResult = {
+      correctedTitle: taskInput.title,
+      correctedDescription: taskInput.description,
+      category: "General",
+      priority: "low",
+      deadline: dayjs()
+        .add(1, "day")
+        .hour(12)
+        .minute(0)
+        .format("YYYY-MM-DD HH:mm"),
+    };
+  }
 
-    const newTask = new Task(
-      aiResult.correctedTitle,
-      aiResult.correctedDescription,
-      finalAssignedTo,
-      aiResult.deadline,
-      aiResult.priority,
-      [finalCategory]
-    );
+  // Now handle category selection with AI suggestion
+  let categoryChoices = [...data.categories];
+  const aiSuggestedCategory = aiResult.category;
 
-    tasks.push(newTask);
-    await saveTasks(tasks);
+  // Add AI suggestion if it's not already in the list
+  const aiCategoryOption = `🤖 AI Suggested: ${aiSuggestedCategory}`;
+  if (!categoryChoices.includes(aiSuggestedCategory)) {
+    categoryChoices = [aiCategoryOption, ...categoryChoices];
+  } else {
+    // If category already exists, still show it's AI recommended
+    const index = categoryChoices.indexOf(aiSuggestedCategory);
+    categoryChoices[index] = `${aiSuggestedCategory} (🤖 AI Suggested)`;
+  }
 
-    printSeparator();
-    console.log(chalk.green("✅ Task Added Successfully!"));
-    console.log(
-      chalk.yellow(
-        `📂 Category: ${finalCategory} | 🔥 Priority: ${aiResult.priority}`
-      )
-    );
-    console.log(chalk.magenta(`⏳ Deadline: ${aiResult.deadline}`));
-    printSeparator();
+  // Add other options
+  categoryChoices.push("➕ Add New Category", "🔙 Back");
 
-    await inquirer.prompt([
+  const { category } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "category",
+      message: chalk.cyan("📂 Select Category:"),
+      choices: categoryChoices,
+    },
+  ]);
+
+  if (category === "🔙 Back") {
+    return;
+  }
+
+  let finalCategory;
+  if (category === aiCategoryOption) {
+    // User selected the AI suggestion
+    finalCategory = aiSuggestedCategory;
+
+    // Add to categories if it's new
+    if (!data.categories.includes(aiSuggestedCategory)) {
+      data.categories.push(aiSuggestedCategory);
+      console.log(
+        chalk.green(
+          `✅ Added new AI-suggested category: ${chalk.bold(
+            aiSuggestedCategory
+          )}`
+        )
+      );
+    }
+  } else if (category === "➕ Add New Category") {
+    const { newCategory } = await inquirer.prompt([
       {
-        name: "continue",
-        message: chalk.gray("Press ENTER to return to menu"),
-        type: "input",
+        name: "newCategory",
+        message: chalk.cyan("📂 Enter new category name:"),
+        validate: validateNotEmpty,
       },
     ]);
-  } catch (error) {
-    console.log(chalk.red("❌ Error adding task:", error));
+    finalCategory = newCategory;
+    data.categories.push(newCategory);
+  } else {
+    // User selected an existing category (remove the AI suggestion notation if present)
+    finalCategory = category.replace(" (🤖 AI Suggested)", "");
   }
+
+  // Save updated categories
+  await saveData(data);
+
+  // Priority selection with AI suggestion
+  printSeparator();
+  console.log(chalk.bold.white("🔥 PRIORITY SETTING"));
+  printSeparator();
+
+  // Show AI-suggested priority with color coding
+  const aiPriorityDisplay =
+    aiResult.priority === "high"
+      ? chalk.bold.red("HIGH")
+      : aiResult.priority === "medium"
+      ? chalk.yellow("MEDIUM")
+      : chalk.green("LOW");
+
+  console.log(chalk.cyan(`AI suggested priority: ${aiPriorityDisplay}`));
+
+  const { priority } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "priority",
+      message: chalk.cyan("🔥 Select task priority:"),
+      choices: [
+        {
+          name: `${chalk.bold.red(
+            "HIGH"
+          )} - Urgent, requires immediate attention`,
+          value: "high",
+          short: "High",
+        },
+        {
+          name: `${chalk.yellow("MEDIUM")} - Important, but can wait a bit`,
+          value: "medium",
+          short: "Medium",
+        },
+        {
+          name: `${chalk.green("LOW")} - Not time-sensitive`,
+          value: "low",
+          short: "Low",
+        },
+        {
+          name: `🤖 Use AI suggestion (${aiPriorityDisplay})`,
+          value: aiResult.priority,
+          short: "AI suggestion",
+        },
+      ],
+      default: aiResult.priority,
+    },
+  ]);
+
+  // Create the task object using the selected priority (not the AI one)
+  const newTask = new Task(
+    aiResult.correctedTitle,
+    aiResult.correctedDescription,
+    finalAssignedTo,
+    aiResult.deadline,
+    priority, // Use the manually selected priority
+    [finalCategory]
+  );
+
+  tasks.push(newTask);
+  await saveTasks(tasks);
+
+  printSeparator();
+  console.log(chalk.green("✅ Task Added Successfully!"));
+  console.log(
+    chalk.yellow(`📂 Category: ${finalCategory} | 🔥 Priority: ${priority}`)
+  );
+  console.log(chalk.magenta(`⏳ Deadline: ${aiResult.deadline}`));
+
+  if (aiResult.analysis) {
+    printSeparator();
+    console.log(chalk.blue("🤖 AI Analysis:"));
+    console.log(chalk.italic(aiResult.analysis));
+  }
+
+  printSeparator();
+
+  await inquirer.prompt([
+    {
+      name: "continue",
+      message: chalk.gray("Press ENTER to return to menu"),
+      type: "input",
+    },
+  ]);
 };
 
 export default addTask;

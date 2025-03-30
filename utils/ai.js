@@ -10,8 +10,6 @@ export const classifyTaskAI = async (title, description, deadline) => {
     const currentYear = dayjs().year();
     const today = dayjs().format("YYYY-MM-DD");
 
-    console.log("🟡 Sending request to OpenAI...");
-
     const response = await openai.responses.create({
       model: "gpt-4o",
       input: [
@@ -39,8 +37,6 @@ export const classifyTaskAI = async (title, description, deadline) => {
         { role: "user", content: input },
       ],
     });
-
-    console.log("🟢 AI Response Received:", response.output_text);
 
     let rawResponse = response.output_text.trim();
     rawResponse = rawResponse.replace(/^```json|```$/g, "");

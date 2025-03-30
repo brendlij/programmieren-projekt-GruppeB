@@ -6,6 +6,88 @@ import dayjs from "dayjs";
 import { printSeparator } from "../helpers.js";
 import { loadUsers } from "../../utils/auth.js";
 
+const displayTaskDetails = async (task, users) => {
+  console.clear();
+  printSeparator();
+  console.log(chalk.bold.blue.bgWhite(`\n 📝 TASK DETAILS \n`));
+  printSeparator();
+
+  // Get user details for better display
+  const taskOwner = users.find((u) => u.username === task.assignedTo);
+  const ownerDisplay = taskOwner
+    ? `${chalk.bold(task.assignedTo)} (${chalk.italic(taskOwner.name)})`
+    : chalk.bold(task.assignedTo);
+
+  // Task details section
+  console.log(chalk.bgCyan.black(" TASK SUMMARY "));
+  console.log(chalk.bold.white(`📌 ${task.title}`));
+  console.log(chalk.gray(`ID: ${task.id}`));
+  printSeparator();
+
+  // Assignment information
+  console.log(chalk.bgYellow.black(" ASSIGNMENT "));
+  console.log(chalk.cyan(`👤 Assigned to: ${ownerDisplay}`));
+  printSeparator();
+
+  // Task details
+  console.log(chalk.bgMagenta.black(" DETAILS "));
+  console.log(chalk.cyan(`📄 Description: ${chalk.italic(task.description)}`));
+
+  // Calculate deadline information
+  const now = dayjs();
+  const deadline = dayjs(task.deadline);
+  const daysLeft = deadline.diff(now, "day");
+  let deadlineStatus = "🟢 On Time";
+  let deadlineColor = chalk.green;
+
+  if (daysLeft < 0) {
+    deadlineStatus = "⚠️ OVERDUE";
+    deadlineColor = chalk.red.bold;
+  } else if (daysLeft < 3) {
+    deadlineStatus = "🔴 URGENT";
+    deadlineColor = chalk.red.bold;
+  } else if (daysLeft < 7) {
+    deadlineStatus = "🟡 Due Soon";
+    deadlineColor = chalk.yellow.bold;
+  }
+
+  console.log(
+    chalk.cyan(`📂 Category: ${chalk.magenta(task.categories.join(", "))}`)
+  );
+  console.log(
+    chalk.cyan(
+      `⏳ Deadline: ${deadlineColor(
+        deadline.format("YYYY-MM-DD HH:mm")
+      )} ${deadlineStatus}`
+    )
+  );
+  console.log(
+    chalk.cyan(
+      `🔥 Priority: ${
+        task.priority === "high"
+          ? chalk.bold.red("HIGH")
+          : task.priority === "medium"
+          ? chalk.yellow("MEDIUM")
+          : chalk.green("LOW")
+      }`
+    )
+  );
+
+  // Time information
+  const creationDate = new Date(parseInt(task.id)).toLocaleString();
+  console.log(chalk.cyan(`🕒 Created: ${chalk.gray(creationDate)}`));
+
+  if (daysLeft >= 0) {
+    console.log(chalk.cyan(`⏰ Time remaining: ${chalk.bold(daysLeft)} days`));
+  } else {
+    console.log(
+      chalk.cyan(`⏰ Overdue by: ${chalk.bold.red(Math.abs(daysLeft))} days`)
+    );
+  }
+
+  printSeparator();
+};
+
 const listTasks = async (currentUser, showAll = false) => {
   console.clear();
   let tasks = await loadTasks();
@@ -82,6 +164,15 @@ const listTasks = async (currentUser, showAll = false) => {
     printSeparator();
     console.log(chalk.yellow("\n🚨 No tasks available with current filters."));
     printSeparator();
+
+    await inquirer.prompt([
+      {
+        name: "continue",
+        message: chalk.gray("Press ENTER to return to menu"),
+        type: "input",
+      },
+    ]);
+    return;
   } else {
     printSeparator();
 
@@ -146,15 +237,63 @@ const listTasks = async (currentUser, showAll = false) => {
     });
 
     printSeparator();
-  }
 
-  await inquirer.prompt([
-    {
-      name: "continue",
-      message: chalk.gray("Press ENTER to return to menu"),
-      type: "input",
-    },
-  ]);
+    // New option to view task details
+    const { action } = await inquirer.prompt([
+      {
+        type: "list",
+        name: "action",
+        message: chalk.cyan("What would you like to do?"),
+        choices: ["👁️ View Task Details", "🔙 Return to Menu"],
+      },
+    ]);
+
+    if (action === "👁️ View Task Details") {
+      // Create task choices for selection
+      const taskChoices = tasks.map((task, index) => ({
+        name: `${index + 1}. ${task.title}`,
+        value: index,
+        short: task.title,
+      }));
+
+      taskChoices.push({
+        name: "🔙 Back",
+        value: -1,
+        short: "Back",
+      });
+
+      const { taskIndex } = await inquirer.prompt([
+        {
+          type: "list",
+          name: "taskIndex",
+          message: chalk.cyan("Select a task to view details:"),
+          choices: taskChoices,
+          pageSize: 10,
+        },
+      ]);
+
+      if (taskIndex !== -1) {
+        await displayTaskDetails(tasks[taskIndex], users);
+
+        // After viewing details, ask for next action
+        const { nextAction } = await inquirer.prompt([
+          {
+            type: "list",
+            name: "nextAction",
+            message: chalk.cyan("What would you like to do next?"),
+            choices: ["📋 Back to Task List", "🔙 Return to Menu"],
+          },
+        ]);
+
+        if (nextAction === "📋 Back to Task List") {
+          return await listTasks(currentUser, showAll);
+        }
+        // Otherwise return to menu
+      }
+      // Return to menu if they selected Back
+    }
+    // Otherwise just return to menu
+  }
 };
 
 export default listTasks;

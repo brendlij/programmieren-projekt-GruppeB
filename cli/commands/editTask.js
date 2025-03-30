@@ -103,20 +103,37 @@ const editTask = async (currentUser) => {
   const index = parseInt(taskIndex.split(".")[0]) - 1;
   const task = tasks[index];
 
-  // Display current task details in a nice format
+  // Clear screen before showing task details
   console.clear();
   printSeparator();
   console.log(chalk.bold.yellow.bgBlue("\n ✏️  EDITING TASK \n"));
   printSeparator();
-  console.log(chalk.bold.white("📌 Current Task:"));
-  console.log(chalk.cyan(`Title: ${chalk.bold.white(task.title)}`));
-  console.log(chalk.cyan(`Description: ${chalk.italic(task.description)}`));
-  console.log(chalk.cyan(`Assigned to: ${chalk.bold(task.assignedTo)}`));
-  console.log(chalk.cyan(`Category: ${chalk.magenta(task.categories[0])}`));
-  console.log(chalk.cyan(`Deadline: ${chalk.yellow(task.deadline)}`));
+
+  // Display current task details in a nice format
+  const taskOwner = users.find((u) => u.username === task.assignedTo);
+  const ownerDisplay = taskOwner
+    ? `${chalk.bold(task.assignedTo)} (${chalk.italic(taskOwner.name)})`
+    : chalk.bold(task.assignedTo);
+
+  // Task summary box
+  console.log(chalk.bgCyan.black(" TASK SUMMARY "));
+  console.log(chalk.bold.white(`📌 ${task.title}`));
+  console.log(chalk.gray(`ID: ${task.id}`));
+  printSeparator();
+
+  // Assignment information highlighted
+  console.log(chalk.bgYellow.black(" ASSIGNMENT "));
+  console.log(chalk.cyan(`👤 Assigned to: ${ownerDisplay}`));
+  printSeparator();
+
+  // Task details section
+  console.log(chalk.bgMagenta.black(" DETAILS "));
+  console.log(chalk.cyan(`📄 Description: ${chalk.italic(task.description)}`));
+  console.log(chalk.cyan(`📂 Category: ${chalk.magenta(task.categories[0])}`));
+  console.log(chalk.cyan(`⏳ Deadline: ${chalk.yellow(task.deadline)}`));
   console.log(
     chalk.cyan(
-      `Priority: ${
+      `🔥 Priority: ${
         task.priority === "high"
           ? chalk.bold.red("HIGH")
           : task.priority === "medium"
@@ -126,11 +143,8 @@ const editTask = async (currentUser) => {
     )
   );
   printSeparator();
-  console.log(
-    chalk.bold(
-      "📝 Enter new task details (press Enter to keep current values):"
-    )
-  );
+  console.log(chalk.bold("📝 EDIT TASK INFORMATION"));
+  console.log(chalk.gray("Press Enter to keep current values"));
   printSeparator();
 
   const updatedTaskInput = await inquirer.prompt([
@@ -148,7 +162,10 @@ const editTask = async (currentUser) => {
     },
   ]);
 
-  // --- Assignment: Use registered users ---
+  // Clear screen before showing assignment section
+  console.clear();
+  printSeparator();
+  console.log(chalk.bold.green("✨ USER ASSIGNMENT"));
   printSeparator();
   console.log(chalk.bold.white("👥 ASSIGNMENT"));
 
@@ -237,10 +254,12 @@ const editTask = async (currentUser) => {
   }
   // --- End Assignment ---
 
-  // --- Category Selection ---
+  // Clear screen before category selection
+  console.clear();
+  printSeparator();
+  console.log(chalk.bold.green("✨ CATEGORY SELECTION"));
   printSeparator();
   console.log(chalk.bold.white("📂 CATEGORY"));
-  printSeparator();
 
   const categoryChoices = data.categories.map((cat) => ({
     name: cat,
@@ -291,10 +310,12 @@ const editTask = async (currentUser) => {
   await saveData(data);
   // --- End Category Selection ---
 
-  // Deadline input
+  // Clear screen before deadline input
+  console.clear();
+  printSeparator();
+  console.log(chalk.bold.green("✨ DEADLINE"));
   printSeparator();
   console.log(chalk.bold.white("⏱️ DEADLINE"));
-  printSeparator();
 
   const { deadline } = await inquirer.prompt([
     {
@@ -309,15 +330,23 @@ const editTask = async (currentUser) => {
   console.log(chalk.blue("\n🤖 AI analyzing task & correcting spelling..."));
 
   try {
+    // Clear screen before AI processing
+    console.clear();
+    printSeparator();
+    console.log(chalk.bold.blue("🤖 AI ANALYSIS"));
+    printSeparator();
+    console.log("Processing your task... Please wait.");
+
     const aiResult = await classifyTaskAI(
       updatedTaskInput.title,
       updatedTaskInput.description,
       deadline
     );
 
-    // Priority selection with both current and AI suggestion
+    // Clear screen before priority selection
+    console.clear();
     printSeparator();
-    console.log(chalk.bold.white("🔥 PRIORITY SETTING"));
+    console.log(chalk.bold.green("✨ PRIORITY SELECTION"));
     printSeparator();
 
     // Show current and AI-suggested priority with color coding
@@ -335,8 +364,9 @@ const editTask = async (currentUser) => {
         ? chalk.yellow("MEDIUM")
         : chalk.green("LOW");
 
-    console.log(chalk.cyan(`Current priority: ${currentPriorityDisplay}`));
-    console.log(chalk.cyan(`AI suggested priority: ${aiPriorityDisplay}`));
+    console.log(chalk.cyan(`👉 Current priority: ${currentPriorityDisplay}`));
+    console.log(chalk.cyan(`👉 AI suggested priority: ${aiPriorityDisplay}`));
+    console.log(); // Add a little space before the prompt
 
     const { priority } = await inquirer.prompt([
       {
@@ -382,43 +412,44 @@ const editTask = async (currentUser) => {
       aiResult.correctedDescription,
       finalAssignedTo,
       aiResult.deadline,
-      priority, // Use the manually selected priority
+      priority,
       [finalCategory]
     );
 
     await saveTasks(tasks);
 
-    // Success message with detailed feedback
+    // Make success message more compact
     console.clear();
     printSeparator();
-    console.log(chalk.bgGreen.black("\n ✅ TASK UPDATED SUCCESSFULLY! \n"));
+    console.log(chalk.bgGreen.black("\n ✅ TASK UPDATED SUCCESSFULLY \n"));
     printSeparator();
 
-    console.log(chalk.bold.white("📌 Updated Task Details:"));
+    // Get updated user info for better display
+    const updatedTaskOwner = users.find((u) => u.username === finalAssignedTo);
+    const updatedOwnerDisplay = updatedTaskOwner
+      ? `${chalk.bold(finalAssignedTo)} (${chalk.italic(
+          updatedTaskOwner.name
+        )})`
+      : chalk.bold(finalAssignedTo);
+
+    // More compact success summary
+    console.log(chalk.bold(`📝 "${aiResult.correctedTitle}"`));
+    console.log(`👤 Assigned to: ${updatedOwnerDisplay}`);
+    console.log(`📂 Category: ${chalk.magenta(finalCategory)}`);
+    console.log(`⏳ Deadline: ${chalk.yellow(aiResult.deadline)}`);
     console.log(
-      chalk.cyan(`Title: ${chalk.bold.white(aiResult.correctedTitle)}`)
-    );
-    console.log(
-      chalk.cyan(`Description: ${chalk.italic(aiResult.correctedDescription)}`)
-    );
-    console.log(chalk.cyan(`Assigned to: ${chalk.bold(finalAssignedTo)}`));
-    console.log(chalk.cyan(`Category: ${chalk.magenta(finalCategory)}`));
-    console.log(chalk.cyan(`Deadline: ${chalk.yellow(aiResult.deadline)}`));
-    console.log(
-      chalk.cyan(
-        `Priority: ${
-          aiResult.priority === "high"
-            ? chalk.bold.red("HIGH")
-            : aiResult.priority === "medium"
-            ? chalk.yellow("MEDIUM")
-            : chalk.green("LOW")
-        }`
-      )
+      `🔥 Priority: ${
+        priority === "high"
+          ? chalk.red("HIGH")
+          : priority === "medium"
+          ? chalk.yellow("MEDIUM")
+          : chalk.green("LOW")
+      }`
     );
 
     if (aiResult.analysis) {
       printSeparator();
-      console.log(chalk.bold.blue("🤖 AI Analysis:"));
+      console.log(chalk.blue("🤖 AI Analysis:"));
       console.log(chalk.italic(aiResult.analysis));
     }
 

@@ -43,6 +43,12 @@ const addTask = async (currentUser) => {
     return;
   }
 
+  // Clear screen before task details input
+  console.clear();
+  printSeparator();
+  console.log(chalk.bold.green("✨ TASK DETAILS"));
+  printSeparator();
+
   // Now proceed with task creation
   const taskInput = await inquirer.prompt([
     {
@@ -56,6 +62,12 @@ const addTask = async (currentUser) => {
       validate: validateNotEmpty,
     },
   ]);
+
+  // Clear screen before assignment section
+  console.clear();
+  printSeparator();
+  console.log(chalk.bold.green("✨ TASK ASSIGNMENT"));
+  printSeparator();
 
   // Use registered users for assignment
   const users = await loadUsers();
@@ -120,6 +132,12 @@ const addTask = async (currentUser) => {
     finalAssignedTo = assignedTo.split(" ")[0];
   }
 
+  // Clear screen before deadline and category
+  console.clear();
+  printSeparator();
+  console.log(chalk.bold.green("✨ DEADLINE & CATEGORY"));
+  printSeparator();
+
   // Deadline input
   const { deadline } = await inquirer.prompt([
     {
@@ -130,6 +148,13 @@ const addTask = async (currentUser) => {
       validate: validateNotEmpty,
     },
   ]);
+
+  // Clear the screen while AI is processing
+  console.clear();
+  printSeparator();
+  console.log(chalk.bold.blue("🤖 AI ANALYSIS"));
+  printSeparator();
+  console.log("Processing your task... Please wait.");
 
   console.log(chalk.blue("\n🤖 AI analyzing task & correcting spelling..."));
 
@@ -154,6 +179,12 @@ const addTask = async (currentUser) => {
         .format("YYYY-MM-DD HH:mm"),
     };
   }
+
+  // Clear screen before category selection
+  console.clear();
+  printSeparator();
+  console.log(chalk.bold.green("✨ CATEGORY SELECTION"));
+  printSeparator();
 
   // Now handle category selection with AI suggestion
   let categoryChoices = [...data.categories];
@@ -219,9 +250,10 @@ const addTask = async (currentUser) => {
   // Save updated categories
   await saveData(data);
 
-  // Priority selection with AI suggestion
+  // Clear screen before priority selection
+  console.clear();
   printSeparator();
-  console.log(chalk.bold.white("🔥 PRIORITY SETTING"));
+  console.log(chalk.bold.green("✨ PRIORITY SELECTION"));
   printSeparator();
 
   // Show AI-suggested priority with color coding
@@ -232,7 +264,8 @@ const addTask = async (currentUser) => {
       ? chalk.yellow("MEDIUM")
       : chalk.green("LOW");
 
-  console.log(chalk.cyan(`AI suggested priority: ${aiPriorityDisplay}`));
+  console.log(chalk.cyan(`👉 AI suggested priority: ${aiPriorityDisplay}`));
+  console.log(); // Add a little space before the prompt
 
   const { priority } = await inquirer.prompt([
     {
@@ -280,12 +313,25 @@ const addTask = async (currentUser) => {
   tasks.push(newTask);
   await saveTasks(tasks);
 
+  // Clear screen for the success message (make it compact)
+  console.clear();
   printSeparator();
-  console.log(chalk.green("✅ Task Added Successfully!"));
+  console.log(chalk.bgGreen.black("\n ✅ TASK ADDED SUCCESSFULLY \n"));
+
+  // Make the success summary more compact
+  console.log(chalk.bold(`📝 "${aiResult.correctedTitle}"`));
+  console.log(`👤 Assigned to: ${chalk.cyan(finalAssignedTo)}`);
+  console.log(`📂 Category: ${chalk.magenta(finalCategory)}`);
+  console.log(`⏳ Deadline: ${chalk.yellow(aiResult.deadline)}`);
   console.log(
-    chalk.yellow(`📂 Category: ${finalCategory} | 🔥 Priority: ${priority}`)
+    `🔥 Priority: ${
+      priority === "high"
+        ? chalk.red("HIGH")
+        : priority === "medium"
+        ? chalk.yellow("MEDIUM")
+        : chalk.green("LOW")
+    }`
   );
-  console.log(chalk.magenta(`⏳ Deadline: ${aiResult.deadline}`));
 
   if (aiResult.analysis) {
     printSeparator();

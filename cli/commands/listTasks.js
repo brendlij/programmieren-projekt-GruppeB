@@ -115,12 +115,12 @@ const listTasks = async (currentUser, showAll = false) => {
         "⏱️  Sort by Deadline",
         "🔥 Sort by Priority",
         "📂 Filter by Category",
-        "🔙 Back to Menu",
+        " ⬅️ Back to Menu",
       ],
     },
   ]);
 
-  if (filterChoice === "🔙 Back to Menu") {
+  if (filterChoice === " ⬅️ Back to Menu") {
     return;
   }
 
@@ -144,10 +144,10 @@ const listTasks = async (currentUser, showAll = false) => {
           type: "list",
           name: "chosenCategory",
           message: "Select a category:",
-          choices: [...categories, "🔙 Back"],
+          choices: [...categories, " ⬅️ Back"],
         },
       ]);
-      if (chosenCategory === "🔙 Back") {
+      if (chosenCategory === " ⬅️ Back") {
         return await listTasks(currentUser, showAll); // Return to the start of list tasks
       }
       tasks = tasks.filter((task) => task.categories.includes(chosenCategory));
@@ -244,7 +244,7 @@ const listTasks = async (currentUser, showAll = false) => {
         type: "list",
         name: "action",
         message: chalk.cyan("What would you like to do?"),
-        choices: ["👁️ View Task Details", "🔙 Return to Menu"],
+        choices: ["👁️ View Task Details", " ⬅️ Return to Menu"],
       },
     ]);
 
@@ -257,7 +257,7 @@ const listTasks = async (currentUser, showAll = false) => {
       }));
 
       taskChoices.push({
-        name: "🔙 Back",
+        name: " ⬅️ Back",
         value: -1,
         short: "Back",
       });
@@ -281,7 +281,7 @@ const listTasks = async (currentUser, showAll = false) => {
             type: "list",
             name: "nextAction",
             message: chalk.cyan("What would you like to do next?"),
-            choices: ["📋 Back to Task List", "🔙 Return to Menu"],
+            choices: ["📋 Back to Task List", " ⬅️ Return to Menu"],
           },
         ]);
 

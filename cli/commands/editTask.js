@@ -81,8 +81,8 @@ const editTask = async (currentUser) => {
   });
 
   taskChoices.push({
-    name: "🔙 Back to Menu",
-    value: "🔙 Back to Menu",
+    name: " ⬅️ Back to Menu",
+    value: " ⬅️ Back to Menu",
     short: "Back",
   });
 
@@ -96,7 +96,7 @@ const editTask = async (currentUser) => {
     },
   ]);
 
-  if (taskIndex === "🔙 Back to Menu") {
+  if (taskIndex === " ⬅️ Back to Menu") {
     return;
   }
 
@@ -177,7 +177,7 @@ const editTask = async (currentUser) => {
 
   userChoices.push(
     { name: "➕ Add New Person", value: "➕ Add New Person", short: "Add New" },
-    { name: "🔙 Back", value: "🔙 Back", short: "Back" }
+    { name: " ⬅️ Back", value: " ⬅️ Back", short: "Back" }
   );
 
   // Determine default assignment using task.assignedTo.
@@ -198,7 +198,7 @@ const editTask = async (currentUser) => {
     },
   ]);
 
-  if (assignedTo === "🔙 Back") {
+  if (assignedTo === " ⬅️ Back") {
     return;
   }
 
@@ -273,7 +273,7 @@ const editTask = async (currentUser) => {
       value: "➕ Add New Category",
       short: "Add New",
     },
-    { name: "🔙 Back", value: "🔙 Back", short: "Back" }
+    { name: " ⬅️ Back", value: " ⬅️ Back", short: "Back" }
   );
 
   const { category } = await inquirer.prompt([
@@ -288,7 +288,7 @@ const editTask = async (currentUser) => {
     },
   ]);
 
-  if (category === "🔙 Back") {
+  if (category === " ⬅️ Back") {
     return;
   }
 

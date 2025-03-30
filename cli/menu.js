@@ -10,12 +10,19 @@ import { login } from "../utils/auth.js";
 import adminMenu from "./adminMenu.js";
 
 const mainMenu = async () => {
-  const currentUser = await login();
+  let currentUser = await login();
 
   while (true) {
     console.clear();
     printSeparator();
     console.log(chalk.bold.red("📌 Task Manager"));
+    console.log(
+      chalk.cyan(
+        `👤 Logged in as: ${chalk.bold(currentUser.username)} (${
+          currentUser.role
+        })`
+      )
+    );
     printSeparator();
 
     const choices = [
@@ -28,6 +35,8 @@ const mainMenu = async () => {
     if (currentUser.role === "admin") {
       choices.push("🛠️  Admin Panel");
     }
+
+    choices.push("👤 Switch User");
     choices.push("❌ Exit");
 
     const { action } = await inquirer.prompt([
@@ -44,7 +53,25 @@ const mainMenu = async () => {
     else if (action === "✏️  Edit Task") await editTask(currentUser);
     else if (action === "🗑️  Delete Task") await deleteTask(currentUser);
     else if (action === "🛠️  Admin Panel" && currentUser.role === "admin") {
-      await adminMenu();
+      await adminMenu(currentUser);
+    } else if (action === "👤 Switch User") {
+      console.clear();
+      printSeparator();
+      console.log(chalk.bold.blue("👤 SWITCH USER"));
+      printSeparator();
+      console.log(chalk.yellow(`Logging out: ${currentUser.username}`));
+
+      // Re-authenticate with a new user
+      currentUser = await login();
+
+      console.log(chalk.green(`Switched to user: ${currentUser.username}`));
+      await inquirer.prompt([
+        {
+          name: "continue",
+          message: chalk.gray("Press ENTER to continue"),
+          type: "input",
+        },
+      ]);
     } else if (action === "❌ Exit") {
       break;
     }

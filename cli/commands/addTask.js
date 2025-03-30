@@ -35,11 +35,11 @@ const addTask = async (currentUser) => {
       type: "list",
       name: "confirmCreate",
       message: chalk.cyan("Do you want to create a new task?"),
-      choices: ["✅ Yes, create task", "🔙 Back to menu"],
+      choices: ["✅ Yes, create task", " ⬅️ Back to menu"],
     },
   ]);
 
-  if (confirmCreate === "🔙 Back to menu") {
+  if (confirmCreate === " ⬅️ Back to menu") {
     return;
   }
 
@@ -71,8 +71,24 @@ const addTask = async (currentUser) => {
 
   // Use registered users for assignment
   const users = await loadUsers();
-  const userChoices = users.map((user) => `${user.username} (${user.name})`);
-  userChoices.push("➕ Add New Person", "🔙 Back");
+
+  // Create user choices array - put current user at the top
+  const userChoices = [];
+
+  // Add current user as first option with "current" indicator
+  userChoices.push(
+    `${currentUser.username} (${currentUser.name}) ${chalk.green("(current)")}`
+  );
+
+  // Add other users (excluding current user)
+  users.forEach((user) => {
+    if (user.username !== currentUser.username) {
+      userChoices.push(`${user.username} (${user.name})`);
+    }
+  });
+
+  // Add additional options
+  userChoices.push("➕ Add New Person", " ⬅️ Back");
 
   const { assignedTo } = await inquirer.prompt([
     {
@@ -80,13 +96,12 @@ const addTask = async (currentUser) => {
       name: "assignedTo",
       message: chalk.cyan("👤 Assign to:"),
       choices: userChoices,
+      default: 0, // Select the current user by default
     },
   ]);
 
-  if (assignedTo === "🔙 Back") {
-    return;
-  }
-
+  // Later in the code, extract just the username from the selection
+  // (need to handle the special case of current user with the indicator)
   let finalAssignedTo = "";
   if (assignedTo === "➕ Add New Person") {
     const newUser = await inquirer.prompt([
@@ -128,7 +143,11 @@ const addTask = async (currentUser) => {
     usersList.push(newUser);
     await saveUsers(usersList);
     finalAssignedTo = newUser.username;
+  } else if (assignedTo.includes("(current)")) {
+    // Special case for current user
+    finalAssignedTo = currentUser.username;
   } else {
+    // Regular case - extract username
     finalAssignedTo = assignedTo.split(" ")[0];
   }
 
@@ -201,7 +220,7 @@ const addTask = async (currentUser) => {
   }
 
   // Add other options
-  categoryChoices.push("➕ Add New Category", "🔙 Back");
+  categoryChoices.push("➕ Add New Category", " ⬅️ Back");
 
   const { category } = await inquirer.prompt([
     {
@@ -212,7 +231,7 @@ const addTask = async (currentUser) => {
     },
   ]);
 
-  if (category === "🔙 Back") {
+  if (category === " ⬅️ Back") {
     return;
   }
 

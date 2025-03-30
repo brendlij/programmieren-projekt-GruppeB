@@ -19,6 +19,21 @@ const listCategories = async () => {
 
 const addCategory = async () => {
   const data = await loadData();
+
+  // Add a Back option before creating a new category
+  const { action } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "action",
+      message: chalk.cyan("What would you like to do?"),
+      choices: ["➕ Add New Category", " ⬅️ Back"],
+    },
+  ]);
+
+  if (action === " ⬅️ Back") {
+    return;
+  }
+
   const { newCategory } = await inquirer.prompt([
     {
       name: "newCategory",
@@ -41,14 +56,23 @@ const addCategory = async () => {
 
 const editCategory = async () => {
   const data = await loadData();
+
+  // Add Back option to category list
+  const choices = [...data.categories, " ⬅️ Back"];
+
   const { category } = await inquirer.prompt([
     {
       type: "list",
       name: "category",
       message: "Select category to edit:",
-      choices: data.categories,
+      choices: choices,
     },
   ]);
+
+  if (category === " ⬅️ Back") {
+    return;
+  }
+
   const { newCategoryName } = await inquirer.prompt([
     {
       name: "newCategoryName",
@@ -74,14 +98,23 @@ const editCategory = async () => {
 
 const deleteCategory = async () => {
   const data = await loadData();
+
+  // Add Back option to category list
+  const choices = [...data.categories, " ⬅️ Back"];
+
   const { category } = await inquirer.prompt([
     {
       type: "list",
       name: "category",
       message: "Select category to delete:",
-      choices: data.categories,
+      choices: choices,
     },
   ]);
+
+  if (category === " ⬅️ Back") {
+    return;
+  }
+
   const { confirm } = await inquirer.prompt([
     {
       type: "confirm",
@@ -104,18 +137,22 @@ const viewTasksByCategory = async () => {
       type: "list",
       name: "category",
       message: "Select category to view tasks:",
-      choices: [...data.categories, "🔙 Back"],
+      choices: [...data.categories, " ⬅️ Back"],
     },
   ]);
-  if (category === "🔙 Back") {
+
+  if (category === " ⬅️ Back") {
     return;
   }
+
   const filteredTasks = tasks.filter((task) =>
     task.categories.includes(category)
   );
+
   printAdminHeader("TASKS BY CATEGORY");
   console.log(chalk.bold(`Tasks in Category: ${category}`));
   printSeparator();
+
   if (filteredTasks.length === 0) {
     console.log(chalk.yellow("No tasks found in this category."));
   } else {
@@ -126,6 +163,50 @@ const viewTasksByCategory = async () => {
         }`
       );
     });
+
+    // Add option to view a task or go back
+    const { action } = await inquirer.prompt([
+      {
+        type: "list",
+        name: "action",
+        message: chalk.cyan("What would you like to do?"),
+        choices: ["👁️ View Task Details", " ⬅️ Back to Categories"],
+      },
+    ]);
+
+    if (action === "👁️ View Task Details") {
+      // Add task selection with Back option
+      const taskChoices = filteredTasks.map((task, index) => ({
+        name: `${index + 1}. ${task.title}`,
+        value: index,
+      }));
+
+      taskChoices.push({
+        name: " ⬅️ Back",
+        value: -1,
+      });
+
+      const { taskIndex } = await inquirer.prompt([
+        {
+          type: "list",
+          name: "taskIndex",
+          message: "Select a task to view details:",
+          choices: taskChoices,
+        },
+      ]);
+
+      if (taskIndex !== -1) {
+        // Display task details
+        printSeparator();
+        const task = filteredTasks[taskIndex];
+        console.log(chalk.bold.white(`Title: ${task.title}`));
+        console.log(chalk.cyan(`Description: ${task.description}`));
+        console.log(chalk.cyan(`Assigned to: ${task.assignedTo}`));
+        console.log(chalk.cyan(`Deadline: ${task.deadline}`));
+        console.log(chalk.cyan(`Priority: ${task.priority}`));
+        printSeparator();
+      }
+    }
   }
 };
 
@@ -143,7 +224,7 @@ const manageCategories = async () => {
           "Edit Category",
           "Delete Category",
           "View Tasks by Category",
-          "🔙 Back",
+          " ⬅️ Back",
         ],
       },
     ]);
@@ -152,7 +233,7 @@ const manageCategories = async () => {
     else if (action === "Edit Category") await editCategory();
     else if (action === "Delete Category") await deleteCategory();
     else if (action === "View Tasks by Category") await viewTasksByCategory();
-    else if (action === "🔙 Back") break;
+    else if (action === " ⬅️ Back") break;
     await inquirer.prompt([
       { name: "continue", message: "Press ENTER to continue", type: "input" },
     ]);

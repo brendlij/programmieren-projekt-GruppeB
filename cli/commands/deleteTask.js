@@ -30,7 +30,7 @@ const deleteTask = async (currentUser) => {
   printSeparator();
 
   const taskChoices = tasks.map((task, index) => `${index + 1}. ${task.title}`);
-  taskChoices.push("🔙 Back");
+  taskChoices.push(" ⬅️ Back");
 
   const { taskIndex } = await inquirer.prompt([
     {
@@ -41,7 +41,7 @@ const deleteTask = async (currentUser) => {
     },
   ]);
 
-  if (taskIndex === "🔙 Back") {
+  if (taskIndex === " ⬅️ Back") {
     return;
   }
 

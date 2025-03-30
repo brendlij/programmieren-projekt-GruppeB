@@ -43,10 +43,10 @@ const addUser = async () => {
       type: "list",
       name: "confirmAdd",
       message: "Do you want to add a new user?",
-      choices: ["Yes", "🔙 Back"],
+      choices: ["Yes", " ⬅️ Back"],
     },
   ]);
-  if (confirmAdd === "🔙 Back") {
+  if (confirmAdd === " ⬅️ Back") {
     return;
   }
 
@@ -106,7 +106,7 @@ const addUser = async () => {
 const editUser = async () => {
   let users = await loadUserList();
   const choices = users.map((user, index) => `${index + 1}. ${user.username}`);
-  choices.push("🔙 Back");
+  choices.push(" ⬅️ Back");
 
   const { userIndex } = await inquirer.prompt([
     {
@@ -117,7 +117,7 @@ const editUser = async () => {
     },
   ]);
 
-  if (userIndex === "🔙 Back") {
+  if (userIndex === " ⬅️ Back") {
     return;
   }
 
@@ -189,7 +189,7 @@ const deleteUser = async (currentUser) => {
   let users = await loadUserList();
   // Build choices including a "Back" option.
   const choices = users.map((user, index) => `${index + 1}. ${user.username}`);
-  choices.push("🔙 Back");
+  choices.push(" ⬅️ Back");
 
   const { userIndex } = await inquirer.prompt([
     {
@@ -201,7 +201,7 @@ const deleteUser = async (currentUser) => {
   ]);
 
   // If "Back" is selected, return immediately.
-  if (userIndex === "🔙 Back") {
+  if (userIndex === " ⬅️ Back") {
     return;
   }
 
@@ -214,7 +214,13 @@ const deleteUser = async (currentUser) => {
 
   // Prevent deletion if the selected user is the current admin.
   if (users[index].username === currentUser.username) {
-    console.log(chalk.red("❌ You cannot delete your own account."));
+    console.log(chalk.bgRed.white(" SECURITY PROTECTION "));
+    console.log(
+      chalk.red("❌ You cannot delete your own account while logged in.")
+    );
+    console.log(
+      chalk.yellow("This prevents accidental lockouts from the system.")
+    );
     return;
   }
 
@@ -246,7 +252,7 @@ const manageUsers = async (currentUser) => {
           "Add User",
           "Edit User",
           "Delete User",
-          "🔙 Back",
+          " ⬅️ Back",
         ],
       },
     ]);
@@ -254,7 +260,7 @@ const manageUsers = async (currentUser) => {
     else if (action === "Add User") await addUser();
     else if (action === "Edit User") await editUser();
     else if (action === "Delete User") await deleteUser(currentUser);
-    else if (action === "🔙 Back") break;
+    else if (action === " ⬅️ Back") break;
 
     await inquirer.prompt([
       { name: "continue", message: "Press ENTER to continue", type: "input" },

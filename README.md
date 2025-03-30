@@ -88,4 +88,4 @@ Benutzer und Passwörter bleiben für zukünftige Logins **gespeichert**.
 
 ## 📝 Hinweis
 
-Dieses CLI-Tool ist ideal für kleine Teams oder Einzelpersonen, die Aufgaben effizient organisieren möchten – komplett lokal und ohne externe Abhängigkeiten.
+Dieses CLI-Tool ist ideal für kleine Teams oder Einzelpersonen, die Aufgaben effizient organisieren möchten – komplett lokal.

@@ -1,40 +1,59 @@
-CLI Task Manager
-A powerful command-line task management application with AI integration, multi-user support, and an intuitive interface.
+# 🧠 CLI Task Manager
 
-📋 Features
-🔐 User Authentication System
+Ein leistungsstarkes Kommandozeilen-Tool zur Aufgabenverwaltung – mit **KI-Integration**, **Multi-User-Support** und einer **intuitiven Benutzerführung**.
 
-Multi-user support with admin and regular user roles
-Secure password handling
-User profile management
-🤖 AI-Powered Task Analysis
+---
 
-Automatic priority assignment based on task content
-Natural language deadline parsing (e.g., "tomorrow at noon")
-Task description enhancement and correction
-📝 Task Management
+## 📋 Features
 
-Create, view, edit, and delete tasks
-Assign tasks to specific users
-Set priorities and deadlines
-Organize with categories
-🎨 Enhanced User Experience
+### 🔐 Benutzer-Authentifizierung
+- Multi-User-Unterstützung mit Admin- und regulären Nutzerrollen  
+- Sichere Passwort-Verarbeitung  
+- Verwaltung von Benutzerprofilen  
 
-Color-coded interface for better readability
-Visual indicators for task status and priority
-Intuitive navigation with back options at each step
-Comprehensive input validation
-🛠️ Tech Stack
-Node.js - JavaScript runtime
-Inquirer.js - Interactive command line user interfaces
-Chalk - Terminal string styling
-OpenAI API - AI integration for task analysis
-Day.js - Date manipulation library
-fs-extra - Enhanced file system operations
-🚀 Getting Started
-Prerequisites
-Node.js (v16+)
-npm
-OpenAI API key
-Installation
-Clone the repository:
+### 🤖 KI-gestützte Aufgabenanalyse
+- Automatische Priorisierung basierend auf Aufgabeninhalt  
+- Intelligente Deadline-Erkennung (z. B. „morgen um 12 Uhr“)  
+- Korrektur & Verbesserung von Beschreibungen durch KI  
+
+### 📝 Aufgabenverwaltung
+- Aufgaben erstellen, anzeigen, bearbeiten & löschen  
+- Aufgaben bestimmten Nutzern zuweisen  
+- Prioritäten & Deadlines setzen  
+- Kategorien zur Organisation  
+
+### 🎨 Benutzerfreundlichkeit
+- Farbcodiertes Interface für bessere Lesbarkeit  
+- Visuelle Status- und Prioritätsindikatoren  
+- Intuitive Navigation mit „Zurück“-Optionen  
+- Umfassende Eingabevalidierung  
+
+---
+
+## 🛠️ Tech Stack
+
+- **Node.js** – JavaScript Runtime  
+- **Inquirer.js** – Interaktive CLI-Menüs  
+- **Chalk** – Farbliche Terminal-Ausgabe  
+- **OpenAI API** – KI-Funktionalität  
+- **Day.js** – Datum-/Zeit-Handling  
+- **fs-extra** – Erweiterte Dateioperationen  
+
+---
+
+## 🚀 Getting Started
+
+### 📦 Voraussetzungen
+- Node.js (v16 oder neuer)  
+- npm  
+- OpenAI API Key  
+
+### 🧰 Installation
+
+```bash
+# Repository klonen
+git clone https://github.com/dein-username/cli-task-manager.git
+cd cli-task-manager
+
+# Abhängigkeiten installieren
+npm install
